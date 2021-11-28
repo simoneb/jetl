@@ -1,5 +1,6 @@
 import { CachingIterator } from './CachingIterator'
 import { AbstractBranchingOperation } from './AbstractBranchingOperation'
+import { clone } from '../helpers'
 
 export class BranchingOperation<
   TInput
@@ -10,7 +11,7 @@ export class BranchingOperation<
     const copiedRows = new CachingIterator<TInput>(rows)
 
     for (const operation of this.operations) {
-      const cloned = this.clone(copiedRows)
+      const cloned = clone(copiedRows)
 
       const result = operation.execute(cloned)
 
@@ -25,12 +26,6 @@ export class BranchingOperation<
 
     for (const _ of []) {
       yield _
-    }
-  }
-
-  private async *clone(copiedRows: AsyncIterableIterator<TInput>) {
-    for await (const row of copiedRows) {
-      yield { ...row }
     }
   }
 }

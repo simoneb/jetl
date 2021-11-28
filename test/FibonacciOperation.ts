@@ -1,17 +1,13 @@
 import { AbstractOperation } from '../core/operations/AbstractOperation'
 
-export class FibonacciOperation extends AbstractOperation<never, number> {
-  constructor(private max: number) {
-    super()
-  }
-
-  async *execute(): AsyncIterableIterator<number> {
+export function createFibonacci(max: number) {
+  return async function* fibonacci() {
     let a = 0
     let b = 1
 
     yield 1
 
-    for (let i = 0; i <= this.max; i++) {
+    for (let i = 0; i <= max; i++) {
       const c = a + b
 
       yield c
@@ -19,5 +15,15 @@ export class FibonacciOperation extends AbstractOperation<never, number> {
       a = b
       b = c
     }
+  }
+}
+
+export class FibonacciOperation extends AbstractOperation<never, number> {
+  constructor(private max: number) {
+    super()
+  }
+
+  async *execute() {
+    yield* createFibonacci(this.max)()
   }
 }

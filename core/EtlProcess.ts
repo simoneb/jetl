@@ -9,7 +9,7 @@ export class EtlProcess<TResult> {
   }
 
   public async *execute(): AsyncIterableIterator<TResult> {
-    let rows = empty()
+    let rows = empty() as AsyncIterableIterator<never>
 
     for (const operation of this.operations) {
       rows = await operation.execute(rows)
