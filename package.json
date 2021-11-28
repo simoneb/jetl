@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "test": "tap",
+    "test": "tap test/**/*.test.ts",
     "prepare": "husky install",
     "lint": "eslint . --ext .ts"
   },

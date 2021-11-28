@@ -4,4 +4,4 @@ node_modules
 .eslintcache
 .env
 credentials.json
-token.json
+*token.json
