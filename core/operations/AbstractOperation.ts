@@ -1,5 +1,9 @@
-export abstract class AbstractOperation<TInput = never, TResult = never> {
+import { Operation } from './Operation'
+
+export abstract class AbstractOperation<TInput = never, TResult = never>
+  implements Operation<TInput, TResult>
+{
   abstract execute(
-    rows?: AsyncIterableIterator<TInput>
+    rows: AsyncIterableIterator<TInput>
   ): AsyncIterableIterator<TResult>
 }

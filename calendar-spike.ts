@@ -6,6 +6,8 @@ import { authorize } from './lib/googleAuth'
 import { ListEventsGoogleCalendarOperation } from './google/ListEventsGoogleCalendarOperation'
 import { NestedLoopsJoinOperation } from './core/operations/NestedLoopsJoinOperation'
 import { calendar_v3 } from '@googleapis/calendar'
+import { EtlProcess } from './core/EtlProcess'
+import { OAuth2Client } from 'google-auth-library'
 
 const scopes = ['https://www.googleapis.com/auth/calendar.readonly']
 const tokenPath = 'calendar-token.json'
@@ -34,14 +36,23 @@ class JoinCalendarEventsOperation extends NestedLoopsJoinOperation<
   }
 }
 
+class JoinCalendarEventsProcess extends EtlProcess<
+  calendar_v3.Schema$Event & { hello: string }
+> {
+  constructor(oAuth2Client: OAuth2Client) {
+    super()
+
+    const listOperation = new ListEventsGoogleCalendarOperation(oAuth2Client)
+    this.register(new JoinCalendarEventsOperation(listOperation, listOperation))
+  }
+}
+
 async function run() {
   const oAuth2Client = await authorize(scopes, tokenPath)
 
-  const operation = new ListEventsGoogleCalendarOperation(oAuth2Client)
+  const process = new JoinCalendarEventsProcess(oAuth2Client)
 
-  const join = new JoinCalendarEventsOperation(operation, operation)
-
-  for await (const event of join.execute()) {
+  for await (const event of process.execute()) {
     const start = event.start?.dateTime || event.start?.date
     console.log(`${start} - ${event.summary} - ${event.hello}`)
   }

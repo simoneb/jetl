@@ -19,7 +19,7 @@ export abstract class NestedLoopsJoinOperation<
   }
 
   async *execute(
-    rows?: AsyncIterableIterator<TInput>
+    rows: AsyncIterableIterator<TInput>
   ): AsyncIterableIterator<TResult> {
     const matchedRightRows = new Set<TRight>()
     const rightIterator = new CachingIterator(this.right.execute(rows))

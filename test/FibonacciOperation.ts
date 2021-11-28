@@ -11,7 +11,7 @@ export class FibonacciOperation extends AbstractOperation<never, number> {
 
     yield 1
 
-    for (let i = 0; i < this.max; i++) {
+    for (let i = 0; i <= this.max; i++) {
       const c = a + b
 
       yield c
