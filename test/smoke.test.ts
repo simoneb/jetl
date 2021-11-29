@@ -3,10 +3,18 @@ import { SumOperation } from './aggregation/SumOperation'
 import { EtlProcess } from '../core/EtlProcess'
 import { createFibonacci, FibonacciOperation } from './FibonacciOperation'
 import { PlusOneOperation } from './PlusOneOperation'
-import { empty } from '../core/helpers'
+import { empty, generate } from '../core/helpers'
 
-interface Operation<T> {
-  (rows: AsyncGenerator<T>): AsyncGenerator
+interface Operation<T, TResult = T> {
+  (rows: AsyncGenerator<T>): AsyncGenerator<TResult>
+}
+
+interface MatchCondition<A, B> {
+  (a: A, b: B): boolean
+}
+
+interface MergeOperation<L, R, TResult = [L, R]> {
+  (l: L, r: R): TResult
 }
 
 async function* plus1(rows: AsyncGenerator<number>) {
@@ -25,16 +33,45 @@ async function* sum(rows: AsyncGenerator<number>) {
   yield sum
 }
 
+function join<L, R, TResult>(
+  operation: Operation<R>,
+  match: MatchCondition<L, R> = (l: L, r: R) => true,
+  merge?: MergeOperation<L, R, TResult>
+) {
+  return async function* join(rows: AsyncGenerator<L>) {
+    for await (const row of rows) {
+      for await (const row2 of operation(empty())) {
+        if (match(row, row2)) {
+          yield merge ? merge(row, row2) : [row, row2]
+        }
+      }
+    }
+  }
+}
+
 class pipeline<T = unknown> {
-  private operations: Operation<unknown>[] = []
+  private operations: Operation<unknown, unknown>[] = []
 
   static create(): pipeline {
     return new pipeline()
   }
 
-  public register<T>(operation: Operation<T>): pipeline<T> {
-    this.operations.push(operation as Operation<unknown>)
-    return this as unknown as pipeline<T>
+  public register<T, TResult>(
+    operation: Operation<T, TResult>
+  ): pipeline<TResult> {
+    this.operations.push(operation as Operation<unknown, unknown>)
+    return this as unknown as pipeline<TResult>
+  }
+
+  public join<R, TResult = [T, R]>(
+    operation: Operation<R>,
+    match?: MatchCondition<T, R>,
+    merge?: MergeOperation<T, R, TResult>
+  ): pipeline<TResult> {
+    this.operations.push(
+      join(operation, match, merge) as Operation<unknown, unknown>
+    )
+    return this as unknown as pipeline<TResult>
   }
 
   public async *run(): AsyncGenerator<T> {
@@ -71,31 +108,101 @@ t.test('smoke', async t => {
   })
 
   t.test('experimental api', async t => {
-    const result = pipeline
-      .create()
-      .register(createFibonacci(5))
-      .register(plus1)
-      .run()
+    t.test('basic', async t => {
+      const result = pipeline
+        .create()
+        .register(createFibonacci(5))
+        .register(plus1)
+        .run()
 
-    const expected = [2, 2, 3, 4, 6, 9, 14]
+      const expected = [2, 2, 3, 4, 6, 9, 14]
 
-    for await (const e of result) {
-      t.same(e, expected.shift())
-    }
-  })
+      for await (const e of result) {
+        t.same(e, expected.shift())
+      }
+    })
 
-  t.test('experimental api sum', async t => {
-    t.plan(1)
+    t.test('experimental api sum', async t => {
+      t.plan(1)
 
-    const result = pipeline
-      .create()
-      .register(createFibonacci(5))
-      .register(plus1)
-      .register(sum)
-      .run()
+      const result = pipeline
+        .create()
+        .register(createFibonacci(5))
+        .register(plus1)
+        .register(sum)
+        .run()
 
-    for await (const sum of result) {
-      t.same(sum, 40)
-    }
+      for await (const sum of result) {
+        t.same(sum, 40)
+      }
+    })
+
+    t.test('join', async t => {
+      t.test('join simple', async t => {
+        const result = pipeline
+          .create()
+          .register(generate([1, 2, 3]))
+          .join(generate([1, 2, 3]))
+          .run()
+
+        const pairs = [
+          [1, 1],
+          [1, 2],
+          [1, 3],
+          [2, 1],
+          [2, 2],
+          [2, 3],
+          [3, 1],
+          [3, 2],
+          [3, 3],
+        ]
+
+        t.plan(pairs.length)
+
+        for await (const pair of result) {
+          t.same(pair, pairs.shift())
+        }
+      })
+
+      t.test('join match', async t => {
+        const result = pipeline
+          .create()
+          .register(generate([1, 2, 3]))
+          .join(generate([1, 2, 3]), (a, b) => a === b)
+          .run()
+
+        const pairs = [
+          [1, 1],
+          [2, 2],
+          [3, 3],
+        ]
+
+        t.plan(pairs.length)
+
+        for await (const pair of result) {
+          t.same(pair, pairs.shift())
+        }
+      })
+
+      t.test('join match merge', async t => {
+        const result = pipeline
+          .create()
+          .register(generate([1, 2, 3]))
+          .join(
+            generate([1, 2, 3]),
+            (a, b) => a === b,
+            (a, b) => `${a}-${b}`
+          )
+          .run()
+
+        const strings = ['1-1', '2-2', '3-3']
+
+        t.plan(strings.length)
+
+        for await (const string of result) {
+          t.same(string, strings.shift())
+        }
+      })
+    })
   })
 })
