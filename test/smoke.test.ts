@@ -3,7 +3,7 @@ import { SumOperation } from './aggregation/SumOperation'
 import { EtlProcess } from '../core/EtlProcess'
 import { createFibonacci, FibonacciOperation } from './FibonacciOperation'
 import { PlusOneOperation } from './PlusOneOperation'
-import { empty, generate } from '../core/helpers'
+import { empty, generate, generateOnce } from '../core/helpers'
 
 interface Operation<T, TResult = T> {
   (rows: AsyncGenerator<T>): AsyncGenerator<TResult>
@@ -39,12 +39,31 @@ function join<L, R, TResult>(
   merge?: MergeOperation<L, R, TResult>
 ) {
   return async function* join(rows: AsyncGenerator<L>) {
+    const cached = cache(operation(empty()))
+
     for await (const row of rows) {
-      for await (const row2 of operation(empty())) {
+      for await (const row2 of cached()) {
         if (match(row, row2)) {
           yield merge ? merge(row, row2) : [row, row2]
         }
       }
+    }
+  }
+}
+
+function cache<T>(source: AsyncGenerator<T>) {
+  const cache: T[] = []
+  let firstTime = true
+
+  return async function* () {
+    if (firstTime) {
+      for await (const row of source) {
+        cache.push(row)
+        yield row
+      }
+      firstTime = false
+    } else {
+      yield* cache
     }
   }
 }
@@ -96,6 +115,36 @@ class SampleEtlProcess extends EtlProcess<number> {
 }
 
 t.test('smoke', async t => {
+  t.test('generateOnce', async t => {
+    t.test('simple', async t => {
+      t.plan(4)
+      const generator = generateOnce([1, 2, 3])
+
+      for await (const e of generator()) {
+        t.ok(e)
+      }
+
+      await t.rejects(generator().next(), /already iterated/)
+    })
+  })
+
+  t.test('cache', async t => {
+    t.test('simple', async t => {
+      const generator = cache(generateOnce([1, 2, 3])())
+
+      const expected = [1, 2, 3, 1, 2, 3]
+      t.plan(expected.length)
+
+      for await (const e of generator()) {
+        t.same(e, expected.shift())
+      }
+
+      for await (const e of generator()) {
+        t.same(e, expected.shift())
+      }
+    })
+  })
+
   t.test('simple', async t => {
     const process = new SampleEtlProcess()
 
@@ -142,7 +191,7 @@ t.test('smoke', async t => {
         const result = pipeline
           .create()
           .register(generate([1, 2, 3]))
-          .join(generate([1, 2, 3]))
+          .join(generateOnce([1, 2, 3]))
           .run()
 
         const pairs = [
@@ -168,7 +217,7 @@ t.test('smoke', async t => {
         const result = pipeline
           .create()
           .register(generate([1, 2, 3]))
-          .join(generate([1, 2, 3]), (a, b) => a === b)
+          .join(generateOnce([1, 2, 3]), (a, b) => a === b)
           .run()
 
         const pairs = [
@@ -189,7 +238,7 @@ t.test('smoke', async t => {
           .create()
           .register(generate([1, 2, 3]))
           .join(
-            generate([1, 2, 3]),
+            generateOnce([1, 2, 3]),
             (a, b) => a === b,
             (a, b) => `${a}-${b}`
           )
