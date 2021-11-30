@@ -29,7 +29,7 @@
   "dependencies": {
     "@googleapis/calendar": "^1.0.1",
     "dotenv": "^10.0.0",
-    "googleapis": "^91.0.0",
+    "googleapis": "^92.0.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.2"
   },
