@@ -1,5 +1,5 @@
 import t from 'tap'
-import { cache, generate, generateOnce, reduce } from '../core/helpers'
+import { cache, empty, generate, generateOnce, reduce } from '../core/helpers'
 import pipeline from '../core/pipeline'
 import { generateFibonacci, plus1, sum } from './helpers'
 
@@ -36,8 +36,7 @@ t.test('smoke', async t => {
 
   t.test('pipeline', async t => {
     t.test('basic', async t => {
-      const result = pipeline
-        .create()
+      const result = new pipeline()
         .register(generateFibonacci(5))
         .register(plus1)
         .run()
@@ -54,8 +53,7 @@ t.test('smoke', async t => {
     t.test('sum', async t => {
       t.plan(1)
 
-      const result = pipeline
-        .create()
+      const result = new pipeline()
         .register(generateFibonacci(5))
         .register(plus1)
         .register(sum)
@@ -69,8 +67,7 @@ t.test('smoke', async t => {
     t.test('reduce', async t => {
       t.plan(1)
 
-      const result = pipeline
-        .create()
+      const result = new pipeline()
         .register(generateOnce([1, 2, 3]))
         .register(reduce((acc, current) => acc + current, 0))
         .run()
@@ -82,8 +79,7 @@ t.test('smoke', async t => {
 
     t.test('join', async t => {
       t.test('join simple', async t => {
-        const result = pipeline
-          .create()
+        const result = new pipeline()
           .register(generate([1, 2, 3]))
           .join(generateOnce([1, 2, 3]))
           .run()
@@ -108,8 +104,7 @@ t.test('smoke', async t => {
       })
 
       t.test('join match', async t => {
-        const result = pipeline
-          .create()
+        const result = new pipeline()
           .register(generate([1, 2, 3]))
           .join(generateOnce([1, 2, 3]), (a, b) => a === b)
           .run()
@@ -128,8 +123,7 @@ t.test('smoke', async t => {
       })
 
       t.test('join match merge', async t => {
-        const result = pipeline
-          .create()
+        const result = new pipeline()
           .register(generate([1, 2, 3]))
           .join(
             generateOnce([1, 2, 3]),
@@ -150,8 +144,7 @@ t.test('smoke', async t => {
 
     t.test('fork', async t => {
       t.test('fork simple', async t => {
-        const [p1, p2] = pipeline
-          .create()
+        const [p1, p2] = await new pipeline()
           .register(generateOnce([1, 2, 3]))
           .fork()
 
@@ -172,8 +165,7 @@ t.test('smoke', async t => {
       })
 
       t.test('fork different downstream operations', async t => {
-        const [p1, p2] = pipeline
-          .create()
+        const [p1, p2] = await new pipeline()
           .register(generateOnce([1, 2, 3]))
           .fork()
 
@@ -194,37 +186,25 @@ t.test('smoke', async t => {
       })
 
       t.test('fork then join', async t => {
-        const [p1, p2] = pipeline
-          .create()
-          .register(generate([1, 2, 3]))
+        const [p1, p2] = await new pipeline()
+          .register(generateOnce([1, 2, 3]))
           .fork()
 
         const r1 = p1.register(plus1).run()
-        const r2 = p2.run()
+        const r2 = p2.register(sum).run()
 
-        const pr = pipeline
-          .create()
-          .register(() => r1)
-          .join(() => r2)
-          .run()
+        const pr = new pipeline().register(r1).join(r2).run()
 
-        // const expected = [
-        //   [2, 1],
-        //   [2, 2],
-        //   [2, 3],
-        //   [3, 1],
-        //   [3, 2],
-        //   [3, 3],
-        //   [4, 1],
-        //   [4, 2],
-        //   [4, 3],
-        // ]
+        const expected = [
+          [2, 6],
+          [3, 6],
+          [4, 6],
+        ]
 
-        // t.plan(expected.length)
+        t.plan(expected.length)
 
         for await (const e of pr) {
-          t.ok(e)
-          console.log('hello', e)
+          t.strictSame(e, expected.shift())
         }
       })
     })

@@ -24,12 +24,6 @@ export function generateOnce<T>(iterable: Iterable<T>) {
   }
 }
 
-export async function* clone<T>(rows: AsyncIterable<T>) {
-  for await (const row of rows) {
-    yield { ...row }
-  }
-}
-
 export function reduce<T, TResult>(
   reducer: (acc: TResult, current: T) => TResult,
   initialValue: TResult
@@ -78,4 +72,10 @@ export function cache<T>(source: AsyncGenerator<T>) {
       yield* cache
     }
   }
+}
+
+export function toOperation<T, TResult>(
+  value: Operation<T, TResult> | AsyncGenerator<TResult>
+) {
+  return typeof value === 'function' ? value : () => value
 }

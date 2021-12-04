@@ -1,38 +1,35 @@
-import { cache, empty, join } from './helpers'
+import { cache, empty, join, toOperation } from './helpers'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
 export default class pipeline<T = unknown> {
   private operations: Operation<unknown, unknown>[] = []
 
-  static create(): pipeline {
-    return new pipeline()
-  }
-
   public register<TResult>(
-    operation: Operation<T, TResult>
+    operation: Operation<T, TResult> | AsyncGenerator<TResult>
   ): pipeline<TResult> {
-    this.operations.push(operation as Operation<unknown, unknown>)
+    this.operations.push(toOperation(operation) as Operation<unknown, unknown>)
     return this as unknown as pipeline<TResult>
   }
 
   public join<R, TResult = [T, R]>(
-    operation: Operation<R>,
+    operation: Operation<R> | AsyncGenerator<R>,
     match?: MatchCondition<T, R>,
     merge?: MergeOperation<T, R, TResult>
   ): pipeline<TResult> {
     this.operations.push(
-      join(operation, match, merge) as Operation<unknown, unknown>
+      join(toOperation(operation), match, merge) as Operation<unknown, unknown>
     )
     return this as unknown as pipeline<TResult>
   }
 
-  fork(): [pipeline<T>, pipeline<T>] {
+  async fork(): Promise<[pipeline<T>, pipeline<T>]> {
     const cached = cache(this.run())
 
-    return [
-      pipeline.create().register(cached),
-      pipeline.create().register(cached),
-    ]
+    for await (const _ of cached()) {
+      //
+    }
+
+    return [new pipeline().register(cached), new pipeline().register(cached)]
   }
 
   public async *run(): AsyncGenerator<T> {
