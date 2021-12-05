@@ -1,27 +1,7 @@
-import { MatchCondition, MergeOperation, Operation } from './types'
+import { Operation } from './types'
 
 export async function* empty() {
   // do nothing
-}
-
-export function generate<T>(iterable: Iterable<T>) {
-  return async function* () {
-    yield* iterable
-  }
-}
-
-export function generateOnce<T>(iterable: Iterable<T>) {
-  let executed = false
-
-  return async function* () {
-    if (executed) {
-      throw new Error('already iterated')
-    }
-
-    executed = true
-
-    yield* iterable
-  }
 }
 
 export function reduce<T, TResult>(
@@ -36,24 +16,6 @@ export function reduce<T, TResult>(
     }
 
     yield result
-  }
-}
-
-export function join<L, R, TResult>(
-  operation: Operation<R>,
-  match: MatchCondition<L, R> = () => true,
-  merge?: MergeOperation<L, R, TResult>
-) {
-  return async function* join(rows: AsyncIterable<L>) {
-    const cached = cache(operation(empty()))
-
-    for await (const row of rows) {
-      for await (const row2 of cached()) {
-        if (match(row, row2)) {
-          yield merge ? merge(row, row2) : [row, row2]
-        }
-      }
-    }
   }
 }
 
@@ -99,10 +61,4 @@ export async function first<T>(iterable: AsyncIterable<T>): Promise<T> {
   const iterator = iterable[Symbol.asyncIterator]()
 
   return (await iterator.next()).value
-}
-
-export function joinStrings(separator = '') {
-  return async function* <T>(iterable: AsyncIterable<T>) {
-    yield (await toArray(iterable)).join(separator)
-  }
 }

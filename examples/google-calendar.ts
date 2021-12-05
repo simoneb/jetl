@@ -23,8 +23,8 @@ async function run() {
   const sheets = google.sheets({ version: 'v4', auth: oAuth2Client })
 
   const result = new pipeline()
-    .register(listEvents(calendar))
-    .register(
+    .add(listEvents(calendar))
+    .add(
       writeToSpreadsheet(sheets, '1kq-OtDNjRLm_eVktp_C6EyeGLXFB7kvb1Aj-aVSWvPs')
     )
     .run()

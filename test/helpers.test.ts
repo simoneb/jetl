@@ -1,27 +1,8 @@
 import tap from 'tap'
-import {
-  cache,
-  first,
-  generateOnce,
-  joinStrings,
-  toArray,
-} from '../core/helpers'
+import { cache, first, toArray } from '../core/helpers'
+import { generateOnce } from '../core/operations'
 
 tap.test('helpers', async t => {
-  t.test('generateOnce', async t => {
-    t.test('should generate sequence only once', async t => {
-      t.plan(4)
-
-      const generator = generateOnce([1, 2, 3])
-
-      for await (const e of generator()) {
-        t.ok(e)
-      }
-
-      await t.rejects(generator().next(), /already iterated/)
-    })
-  })
-
   t.test('toArray', async t => {
     t.test('should return an array', async t => {
       t.strictSame([1, 2, 3], await toArray(generateOnce([1, 2, 3])()))
@@ -48,12 +29,6 @@ tap.test('helpers', async t => {
   t.test('first', async t => {
     t.test('should return first element', async t => {
       t.same(1, await first(generateOnce([1, 2, 3])()))
-    })
-  })
-
-  t.test('joinStrings', async t => {
-    t.test('should join strings', async t => {
-      t.same('1,2,3', await first(joinStrings(',')(generateOnce([1, 2, 3])())))
     })
   })
 })

@@ -1,10 +1,11 @@
-import { cache, consume, empty, join, toOperation } from './helpers'
+import { cache, consume, empty, toOperation } from './helpers'
+import { group, join } from './operations'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
 export default class pipeline<T = unknown> {
   private operations: Operation<unknown, unknown>[] = []
 
-  public register<TResult>(
+  public add<TResult>(
     operation: Operation<T, TResult> | AsyncIterable<TResult>
   ): pipeline<TResult> {
     this.operations.push(toOperation(operation) as Operation<unknown, unknown>)
@@ -22,12 +23,22 @@ export default class pipeline<T = unknown> {
     return this as unknown as pipeline<TResult>
   }
 
+  public group<TKey = T, TResult = T[]>(
+    createKey: (i: T) => TKey = i => i as unknown as TKey,
+    reduce: (group: T[]) => TResult = group => group as unknown as TResult
+  ): pipeline<[TKey, TResult]> {
+    this.operations.push(
+      group(createKey, reduce) as Operation<unknown, unknown>
+    )
+    return this as unknown as pipeline<[TKey, TResult]>
+  }
+
   async fork(): Promise<[pipeline<T>, pipeline<T>]> {
     const cached = cache(this.run())
 
     await consume(cached())
 
-    return [new pipeline().register(cached), new pipeline().register(cached)]
+    return [new pipeline().add(cached), new pipeline().add(cached)]
   }
 
   public async *run() {

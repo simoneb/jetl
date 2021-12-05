@@ -1,7 +1,8 @@
 import readline from 'readline'
 import fs from 'fs'
 import pipeline from '../core/pipeline'
-import { first, joinStrings } from '../core/helpers'
+import { first } from '../core/helpers'
+import { joinStrings, map } from '../core/operations'
 
 async function run() {
   const rl = readline.createInterface({
@@ -9,16 +10,14 @@ async function run() {
     crlfDelay: Infinity,
   })
 
-  async function* commentOut(lines: AsyncIterable<string>) {
-    for await (const line of lines) {
-      yield `// ${line}`
-    }
+  async function comment(line: string) {
+    return `// ${line}`
   }
 
   const result = new pipeline()
-    .register(rl)
-    .register(commentOut)
-    .register(joinStrings('\n'))
+    .add(rl)
+    .add(map(comment))
+    .add(joinStrings('\n'))
     .run()
 
   console.log(await first(result))
