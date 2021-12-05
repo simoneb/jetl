@@ -1,1 +1,2 @@
 ts: true
+check-coverage: false
