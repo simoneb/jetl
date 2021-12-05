@@ -10,13 +10,9 @@ async function run() {
     crlfDelay: Infinity,
   })
 
-  async function comment(line: string) {
-    return `// ${line}`
-  }
-
   const result = new pipeline()
     .add(rl)
-    .add(map(comment))
+    .add(map(line => `// ${line}`))
     .add(joinStrings('\n'))
     .run()
 
