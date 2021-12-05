@@ -41,10 +41,10 @@ export function reduce<T, TResult>(
 
 export function join<L, R, TResult>(
   operation: Operation<R>,
-  match: MatchCondition<L, R> = (l: L, r: R) => true,
+  match: MatchCondition<L, R> = () => true,
   merge?: MergeOperation<L, R, TResult>
 ) {
-  return async function* join(rows: AsyncGenerator<L>) {
+  return async function* join(rows: AsyncIterable<L>) {
     const cached = cache(operation(empty()))
 
     for await (const row of rows) {
@@ -57,7 +57,7 @@ export function join<L, R, TResult>(
   }
 }
 
-export function cache<T>(source: AsyncGenerator<T>) {
+export function cache<T>(source: AsyncIterable<T>) {
   const cache: T[] = []
   let firstTime = true
 
@@ -75,15 +75,14 @@ export function cache<T>(source: AsyncGenerator<T>) {
 }
 
 export function toOperation<T, TResult>(
-  value: Operation<T, TResult> | AsyncGenerator<TResult>
+  value: Operation<T, TResult> | AsyncIterable<TResult>
 ) {
   return typeof value === 'function' ? value : () => value
 }
 
 export async function consume<T>(rows: AsyncIterable<T>) {
-  for await (const _ of rows) {
-    // do nothing
-  }
+  const iterator = rows[Symbol.asyncIterator]()
+  while (!(await iterator.next()).done);
 }
 
 export async function toArray<T>(iterable: AsyncIterable<T>): Promise<T[]> {
@@ -94,4 +93,16 @@ export async function toArray<T>(iterable: AsyncIterable<T>): Promise<T[]> {
   }
 
   return array
+}
+
+export async function first<T>(iterable: AsyncIterable<T>): Promise<T> {
+  const iterator = iterable[Symbol.asyncIterator]()
+
+  return (await iterator.next()).value
+}
+
+export function joinStrings(separator = '') {
+  return async function* <T>(iterable: AsyncIterable<T>) {
+    yield (await toArray(iterable)).join(separator)
+  }
 }

@@ -2,10 +2,10 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-import { authorize } from './lib/googleAuth'
 import { calendar_v3, google, sheets_v4 } from 'googleapis'
-import pipeline from './core/pipeline'
-import { consume, toArray } from './core/helpers'
+import { authorize } from '../lib/google-auth'
+import pipeline from '../core/pipeline'
+import { consume, toArray } from '../core/helpers'
 
 const scopes = [
   'https://www.googleapis.com/auth/calendar.readonly',
@@ -35,7 +35,7 @@ async function run() {
 run()
 
 function writeToSpreadsheet(sheets: sheets_v4.Sheets, spreadsheetId: string) {
-  return async function* (rows: AsyncGenerator<calendar_v3.Schema$Event>) {
+  return async function* (rows: AsyncIterable<calendar_v3.Schema$Event>) {
     const array = await toArray(rows)
 
     await sheets.spreadsheets.values.update({

@@ -1,5 +1,5 @@
-export interface Operation<T, TResult = T> {
-  (rows: AsyncGenerator<T>): AsyncGenerator<TResult>
+export interface Operation<T = unknown, TResult = T> {
+  (rows: AsyncIterable<T>): AsyncIterable<TResult>
 }
 
 export interface MatchCondition<A, B> {

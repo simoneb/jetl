@@ -5,14 +5,14 @@ export default class pipeline<T = unknown> {
   private operations: Operation<unknown, unknown>[] = []
 
   public register<TResult>(
-    operation: Operation<T, TResult> | AsyncGenerator<TResult>
+    operation: Operation<T, TResult> | AsyncIterable<TResult>
   ): pipeline<TResult> {
     this.operations.push(toOperation(operation) as Operation<unknown, unknown>)
     return this as unknown as pipeline<TResult>
   }
 
   public join<R, TResult = [T, R]>(
-    operation: Operation<R> | AsyncGenerator<R>,
+    operation: Operation<R> | AsyncIterable<R>,
     match?: MatchCondition<T, R>,
     merge?: MergeOperation<T, R, TResult>
   ): pipeline<TResult> {
@@ -31,12 +31,12 @@ export default class pipeline<T = unknown> {
   }
 
   public async *run() {
-    let rows = empty() as AsyncGenerator
+    let rows = empty() as AsyncIterable<unknown>
 
     for (const operation of this.operations) {
       rows = operation(rows)
     }
 
-    yield* rows as AsyncGenerator<T>
+    yield* rows as AsyncIterable<T>
   }
 }

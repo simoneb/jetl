@@ -29,6 +29,7 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "googleapis": "^92.0.0",
+    "pkg-dir": "^6.0.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.2"
   },

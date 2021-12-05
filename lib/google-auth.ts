@@ -1,10 +1,9 @@
 import fs from 'fs/promises'
+import path from 'path'
 import readline from 'readline'
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
-
-// generate credentials
-// https://console.cloud.google.com/apis/credentials/oauthclient/616285864420-t64mfrv0dp48kbd1atfuqm90u7smru95.apps.googleusercontent.com?project=jtl-node
+import { packageDirectory } from 'pkg-dir'
 
 export interface OAuth2Credentials {
   installed: {
@@ -16,10 +15,13 @@ export interface OAuth2Credentials {
 
 export async function authorize(
   scopes: string[],
-  tokenPath: string
+  tokenFileName: string
 ): Promise<OAuth2Client> {
   const credentials: OAuth2Credentials = JSON.parse(
-    await fs.readFile('credentials.json', 'utf-8')
+    await fs.readFile(
+      path.join(await packageDirectory(), 'credentials.json'),
+      'utf-8'
+    )
   )
 
   const { client_secret, client_id, redirect_uris } = credentials.installed
@@ -30,10 +32,13 @@ export async function authorize(
   )
 
   try {
-    const token = await fs.readFile(tokenPath, 'utf-8')
+    const token = await fs.readFile(
+      path.join(await packageDirectory(), tokenFileName),
+      'utf-8'
+    )
     oAuth2Client.setCredentials(JSON.parse(token))
   } catch (err) {
-    await getTokens(oAuth2Client, scopes, tokenPath)
+    await getTokens(oAuth2Client, scopes, tokenFileName)
   }
   return oAuth2Client
 }
@@ -65,5 +70,8 @@ async function getTokens(
 
   oAuth2Client.setCredentials(tokens)
 
-  await fs.writeFile(tokenPath, JSON.stringify(tokens))
+  await fs.writeFile(
+    path.join(await packageDirectory(), tokenPath),
+    JSON.stringify(tokens)
+  )
 }
