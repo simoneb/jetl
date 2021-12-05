@@ -1,4 +1,4 @@
-import { cache, empty, join, toOperation } from './helpers'
+import { cache, consume, empty, join, toOperation } from './helpers'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
 export default class pipeline<T = unknown> {
@@ -25,14 +25,12 @@ export default class pipeline<T = unknown> {
   async fork(): Promise<[pipeline<T>, pipeline<T>]> {
     const cached = cache(this.run())
 
-    for await (const _ of cached()) {
-      //
-    }
+    await consume(cached())
 
     return [new pipeline().register(cached), new pipeline().register(cached)]
   }
 
-  public async *run(): AsyncGenerator<T> {
+  public async *run() {
     let rows = empty() as AsyncGenerator
 
     for (const operation of this.operations) {

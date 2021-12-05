@@ -79,3 +79,19 @@ export function toOperation<T, TResult>(
 ) {
   return typeof value === 'function' ? value : () => value
 }
+
+export async function consume<T>(rows: AsyncIterable<T>) {
+  for await (const _ of rows) {
+    // do nothing
+  }
+}
+
+export async function toArray<T>(iterable: AsyncIterable<T>): Promise<T[]> {
+  const array: T[] = []
+
+  for await (const item of iterable) {
+    array.push(item)
+  }
+
+  return array
+}

@@ -3,59 +3,62 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { authorize } from './lib/googleAuth'
-import { ListEventsGoogleCalendarOperation } from './google/ListEventsGoogleCalendarOperation'
-import { NestedLoopsJoinOperation } from './core/operations/NestedLoopsJoinOperation'
-import { calendar_v3 } from '@googleapis/calendar'
-import { EtlProcess } from './core/EtlProcess'
-import { OAuth2Client } from 'google-auth-library'
+import { calendar_v3, google, sheets_v4 } from 'googleapis'
+import pipeline from './core/pipeline'
+import { consume, toArray } from './core/helpers'
 
-const scopes = ['https://www.googleapis.com/auth/calendar.readonly']
-const tokenPath = 'calendar-token.json'
-
-class JoinCalendarEventsOperation extends NestedLoopsJoinOperation<
-  never,
-  calendar_v3.Schema$Event,
-  calendar_v3.Schema$Event,
-  calendar_v3.Schema$Event & { hello: string }
-> {
-  protected matchJoinCondition(
-    leftRow: calendar_v3.Schema$Event,
-    rightRow: calendar_v3.Schema$Event
-  ): boolean {
-    return leftRow.summary === rightRow.summary
-  }
-  protected mergeRows(
-    leftRow: calendar_v3.Schema$Event,
-    rightRow: calendar_v3.Schema$Event
-  ) {
-    return {
-      ...leftRow,
-      ...rightRow,
-      hello: 'world',
-    }
-  }
-}
-
-class JoinCalendarEventsProcess extends EtlProcess<
-  calendar_v3.Schema$Event & { hello: string }
-> {
-  constructor(oAuth2Client: OAuth2Client) {
-    super()
-
-    const listOperation = new ListEventsGoogleCalendarOperation(oAuth2Client)
-    this.register(new JoinCalendarEventsOperation(listOperation, listOperation))
-  }
-}
+const scopes = [
+  'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/spreadsheets',
+]
+const tokenPath = 'google-token.json'
 
 async function run() {
   const oAuth2Client = await authorize(scopes, tokenPath)
+  const calendar = google.calendar({
+    version: 'v3',
+    auth: oAuth2Client,
+  })
 
-  const process = new JoinCalendarEventsProcess(oAuth2Client)
+  const sheets = google.sheets({ version: 'v4', auth: oAuth2Client })
 
-  for await (const event of process.execute()) {
-    const start = event.start?.dateTime || event.start?.date
-    console.log(`${start} - ${event.summary} - ${event.hello}`)
-  }
+  const result = new pipeline()
+    .register(listEvents(calendar))
+    .register(
+      writeToSpreadsheet(sheets, '1kq-OtDNjRLm_eVktp_C6EyeGLXFB7kvb1Aj-aVSWvPs')
+    )
+    .run()
+
+  await consume(result)
 }
 
 run()
+
+function writeToSpreadsheet(sheets: sheets_v4.Sheets, spreadsheetId: string) {
+  return async function* (rows: AsyncGenerator<calendar_v3.Schema$Event>) {
+    const array = await toArray(rows)
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      valueInputOption: 'USER_ENTERED',
+      range: 'A1',
+      requestBody: {
+        values: array.map(event => [event.summary]),
+      },
+    })
+
+    yield* array
+  }
+}
+
+async function* listEvents(calendar: calendar_v3.Calendar) {
+  const events = await calendar.events.list({
+    calendarId: 'primary',
+    timeMin: new Date().toISOString(),
+    maxResults: 10,
+    singleEvents: true,
+    orderBy: 'startTime',
+  })
+
+  yield* events.data.items || []
+}

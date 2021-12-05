@@ -1,5 +1,5 @@
 import t from 'tap'
-import { cache, empty, generate, generateOnce, reduce } from '../core/helpers'
+import { cache, generate, generateOnce, reduce } from '../core/helpers'
 import pipeline from '../core/pipeline'
 import { generateFibonacci, plus1, sum } from './helpers'
 

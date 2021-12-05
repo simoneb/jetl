@@ -3,6 +3,9 @@ import readline from 'readline'
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
 
+// generate credentials
+// https://console.cloud.google.com/apis/credentials/oauthclient/616285864420-t64mfrv0dp48kbd1atfuqm90u7smru95.apps.googleusercontent.com?project=jtl-node
+
 export interface OAuth2Credentials {
   installed: {
     client_secret: string
