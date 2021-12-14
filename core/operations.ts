@@ -53,6 +53,24 @@ export function map<T, TResult>(f: (input: T) => TResult) {
   }
 }
 
+export function filter<T>(f: (input: T) => boolean) {
+  return async function* (iterable: AsyncIterable<T>) {
+    for await (const item of iterable) {
+      if (f(item)) {
+        yield item
+      }
+    }
+  }
+}
+
+export function flatMap<T, TResult>(f: (input: T) => AsyncIterable<TResult>) {
+  return async function* (iterable: AsyncIterable<T>) {
+    for await (const item of iterable) {
+      yield* f(item)
+    }
+  }
+}
+
 export function group<T, TKey, TResult>(
   createKey: (i: T) => TKey,
   reduce: (group: T[]) => TResult
