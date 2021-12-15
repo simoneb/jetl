@@ -71,6 +71,17 @@ export function flatMap<T, TResult>(f: (input: T) => AsyncIterable<TResult>) {
   }
 }
 
+export async function* unique<T>(iterable: AsyncIterable<T>) {
+  const set = new Set<T>()
+
+  for await (const item of iterable) {
+    if (!set.has(item)) {
+      set.add(item)
+      yield item
+    }
+  }
+}
+
 export function group<T, TKey, TResult>(
   createKey: (i: T) => TKey,
   reduce: (group: T[]) => TResult

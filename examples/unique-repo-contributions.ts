@@ -4,7 +4,7 @@ dotenv.config()
 
 import { gql, GraphQLClient } from 'graphql-request'
 import { toArray } from '../core/helpers'
-import { filter, flatMap, map } from '../core/operations'
+import { filter, flatMap, map, unique } from '../core/operations'
 import pipeline from '../core/pipeline'
 
 async function* getAllArchivedDoneCards() {
@@ -50,6 +50,7 @@ async function* getAllArchivedDoneCards() {
   while (true) {
     const data = (await graphQLClient.request(query, { cursor })) as any
     const cards = data?.organization?.project?.columns?.nodes?.[0]?.cards as any
+
     yield* cards?.nodes
 
     cursor = cards?.pageInfo?.endCursor
@@ -61,7 +62,7 @@ async function* getAllArchivedDoneCards() {
 }
 
 async function run() {
-  const result = new pipeline()
+  const [uniqueReposPipeline, p2] = await new pipeline()
     .add(getAllArchivedDoneCards)
     .add(map(({ content, note }) => note || content?.url))
     .add(
@@ -77,14 +78,28 @@ async function run() {
       })
     )
     .add(filter(url => url.includes('github.com')))
+    .fork()
+
+  const uniqueReposResult = uniqueReposPipeline
     .add(map(url => /(https:\/\/github.com\/[^/]+\/[^/]+)/.exec(url)?.[1]))
-    .group()
-    .add(map(([r]) => r))
+    .add(unique)
     .run()
 
-  const repos = await toArray(result)
-  console.log(repos)
-  console.log(repos.length)
+  const uniqueIssuesResult = p2
+    .add(
+      map(
+        url =>
+          /(https:\/\/github.com\/[^/]+\/[^/]+\/issues\/[^/]+)/.exec(url)?.[1]
+      )
+    )
+    .add(unique)
+    .run()
+
+  const uniqueRepos = await toArray(uniqueReposResult)
+  console.log('unique repos', uniqueRepos.length)
+
+  const uniqueIssues = await toArray(uniqueIssuesResult)
+  console.log('unique issues', uniqueIssues.length)
 }
 
 run()
