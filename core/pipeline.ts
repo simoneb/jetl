@@ -24,8 +24,8 @@ export default class pipeline<T = unknown> {
   }
 
   public group<TKey = T, TResult = T[]>(
-    createKey: (i: T) => TKey = i => i as unknown as TKey,
-    reduce: (group: T[]) => TResult = group => group as unknown as TResult
+    createKey?: (i: T) => TKey,
+    reduce?: (group: T[]) => TResult
   ): pipeline<[TKey, TResult]> {
     this.operations.push(
       group(createKey, reduce) as Operation<unknown, unknown>

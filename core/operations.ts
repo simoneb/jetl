@@ -82,9 +82,9 @@ export async function* unique<T>(iterable: AsyncIterable<T>) {
   }
 }
 
-export function group<T, TKey, TResult>(
-  createKey: (i: T) => TKey,
-  reduce: (group: T[]) => TResult
+export function group<T, TKey = T, TResult = T[]>(
+  createKey: (i: T) => TKey = i => i as unknown as TKey,
+  reduce: (group: T[]) => TResult = group => group as unknown as TResult
 ): Operation<T, [TKey, TResult]> {
   return async function* group(
     rows: AsyncIterable<T>
@@ -92,7 +92,7 @@ export function group<T, TKey, TResult>(
     const groups: Map<TKey, T[]> = new Map()
 
     for await (const row of rows) {
-      const key = createKey ? createKey(row) : (row as unknown as TKey)
+      const key = createKey(row)
       const group = groups.get(key)
 
       if (group) {

@@ -1,11 +1,15 @@
 import tap from 'tap'
-import { cache, first, toArray } from '../core/helpers'
+import { cache, empty, first, toArray } from '../core/helpers'
 import { generateOnce } from '../core/operations'
 
 tap.test('helpers', async t => {
+  t.test('empty', async t => {
+    t.same(await toArray(empty()), [])
+  })
+
   t.test('toArray', async t => {
     t.test('should return an array', async t => {
-      t.strictSame([1, 2, 3], await toArray(generateOnce([1, 2, 3])()))
+      t.strictSame(await toArray(generateOnce([1, 2, 3])()), [1, 2, 3])
     })
   })
 
@@ -28,7 +32,7 @@ tap.test('helpers', async t => {
 
   t.test('first', async t => {
     t.test('should return first element', async t => {
-      t.same(1, await first(generateOnce([1, 2, 3])()))
+      t.same(await first(generateOnce([1, 2, 3])()), 1)
     })
   })
 })
