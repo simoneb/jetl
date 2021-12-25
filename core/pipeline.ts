@@ -1,4 +1,4 @@
-import { cache, consume, empty, toOperation } from './helpers'
+import { cache, consume, empty, toOperation } from './operators'
 import { group, join } from './operations'
 import { MatchCondition, MergeOperation, Operation } from './types'
 

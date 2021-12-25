@@ -1,5 +1,5 @@
 import tap from 'tap'
-import { reduce } from '../core/helpers'
+import { reduce } from '../core/operators'
 import { generate, generateOnce, map } from '../core/operations'
 import pipeline from '../core/pipeline'
 import { generateFibonacci, plus1, sum } from './test-helpers'

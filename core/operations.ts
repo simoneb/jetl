@@ -1,10 +1,8 @@
-import { cache, empty, toArray } from './helpers'
+import { cache, empty, toArray } from './operators'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
-export function generate<T>(iterable: Iterable<T>) {
-  return async function* () {
-    yield* iterable
-  }
+export async function* generate<T>(iterable: Iterable<T>) {
+  yield* iterable
 }
 
 export function generateOnce<T>(iterable: Iterable<T>) {
@@ -104,6 +102,31 @@ export function group<T, TKey = T, TResult = T[]>(
 
     for (const [key, group] of groups) {
       yield [key, reduce(group)]
+    }
+  }
+}
+
+export function split(separator: string | RegExp = /\r?\n/) {
+  let buffer = ''
+
+  return async function* split(
+    iterable: AsyncIterable<string | Buffer>
+  ): AsyncIterable<string> {
+    for await (const chunk of iterable) {
+      const [first, ...rest] = (
+        typeof chunk === 'string' ? chunk : chunk.toString()
+      ).split(separator)
+      buffer += first
+
+      if (rest.length) {
+        yield buffer
+        yield* rest.slice(1, rest.length - 2)
+        buffer = rest[rest.length - 1]
+      }
+    }
+
+    if (buffer.length) {
+      yield buffer
     }
   }
 }

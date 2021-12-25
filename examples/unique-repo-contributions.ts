@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { gql, GraphQLClient } from 'graphql-request'
-import { toArray } from '../core/helpers'
+import { toArray } from '../core/operators'
 import { filter, flatMap, map, unique } from '../core/operations'
 import pipeline from '../core/pipeline'
 
@@ -62,7 +62,7 @@ async function* getAllArchivedDoneCards() {
 }
 
 async function run() {
-  const [uniqueReposPipeline, p2] = await new pipeline()
+  const [uniqueReposPipeline, uniqueIssuesPipeline] = await new pipeline()
     .add(getAllArchivedDoneCards)
     .add(map(({ content, note }) => note || content?.url))
     .add(
@@ -85,7 +85,7 @@ async function run() {
     .add(unique)
     .run()
 
-  const uniqueIssuesResult = p2
+  const uniqueIssuesResult = uniqueIssuesPipeline
     .add(
       map(
         url =>

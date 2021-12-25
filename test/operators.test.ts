@@ -1,8 +1,8 @@
 import tap from 'tap'
-import { cache, empty, first, toArray } from '../core/helpers'
+import { cache, empty, first, toArray } from '../core/operators'
 import { generateOnce } from '../core/operations'
 
-tap.test('helpers', async t => {
+tap.test('operators', async t => {
   t.test('empty', async t => {
     t.same(await toArray(empty()), [])
   })
