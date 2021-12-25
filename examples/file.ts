@@ -1,5 +1,5 @@
 import fs from 'fs'
-import pipeline from '../core/pipeline'
+import pipeline from '../'
 import { first } from '../core/operators'
 import { joinStrings, map, split } from '../core/operations'
 
