@@ -1,5 +1,5 @@
 import tap from 'tap'
-import { first, toArray } from '../core/operators'
+import { first, toArray } from '../src/operators'
 import {
   generateOnce,
   joinStrings,
@@ -10,7 +10,7 @@ import {
   generate,
   map,
   split,
-} from '../core/operations'
+} from '../src/operations'
 
 tap.test('operations', async t => {
   t.test('generate', async t => {
@@ -136,6 +136,18 @@ tap.test('operations', async t => {
       const result = split()(generate(['hello\nworld']))
 
       const expected = ['hello', 'world']
+
+      t.plan(expected.length)
+
+      for await (const e of result) {
+        t.same(e, expected.shift())
+      }
+    })
+
+    t.test('multiple separators within same string', async t => {
+      const result = split()(generate(['hello\nwonderful\nworld']))
+
+      const expected = ['hello', 'wonderful', 'world']
 
       t.plan(expected.length)
 

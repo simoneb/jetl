@@ -3,9 +3,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { calendar_v3, google, sheets_v4 } from 'googleapis'
-import { authorize } from '../lib/google-auth'
-import pipeline from '../core/pipeline'
-import { consume, toArray } from '../core/operators'
+import { authorize } from '../src/lib/google-auth'
+import { pipeline } from '../src/pipeline'
+import { consume, toArray } from '../src/operators'
 
 const scopes = [
   'https://www.googleapis.com/auth/calendar.readonly',

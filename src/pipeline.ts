@@ -2,7 +2,7 @@ import { cache, consume, empty, toOperation } from './operators'
 import { group, join } from './operations'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
-export default class pipeline<T = unknown> {
+export class pipeline<T = unknown> {
   private operations: Operation<unknown, unknown>[] = []
 
   public add<TResult>(

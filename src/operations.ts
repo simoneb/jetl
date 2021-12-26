@@ -120,7 +120,7 @@ export function split(separator: string | RegExp = /\r?\n/) {
 
       if (rest.length) {
         yield buffer
-        yield* rest.slice(1, rest.length - 2)
+        yield* rest.slice(0, rest.length - 1)
         buffer = rest[rest.length - 1]
       }
     }

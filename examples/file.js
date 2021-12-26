@@ -1,7 +1,8 @@
-import fs from 'fs'
-import { pipeline } from '../src'
-import { first } from '../src/operators'
-import { joinStrings, map, split } from '../src/operations'
+const fs = require('fs')
+
+const { pipeline } = require('jetl')
+const { first } = require('jetl/operators')
+const { joinStrings, map, split } = require('jetl/operations')
 
 async function run() {
   const result = new pipeline()

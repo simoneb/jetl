@@ -3,9 +3,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { gql, GraphQLClient } from 'graphql-request'
-import { toArray } from '../core/operators'
-import { filter, flatMap, map, unique } from '../core/operations'
-import pipeline from '../core/pipeline'
+import { toArray } from '../src/operators'
+import { filter, flatMap, map, unique } from '../src/operations'
+import { pipeline } from '../src/pipeline'
 
 async function* getAllArchivedDoneCards() {
   const graphQLClient = new GraphQLClient('https://api.github.com/graphql', {

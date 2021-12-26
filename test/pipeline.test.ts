@@ -1,7 +1,7 @@
 import tap from 'tap'
-import { reduce } from '../core/operators'
-import { generate, generateOnce, map } from '../core/operations'
-import pipeline from '../core/pipeline'
+import { reduce } from '../src/operators'
+import { generate, generateOnce, map } from '../src/operations'
+import { pipeline } from '../src/pipeline'
 import { generateFibonacci, plus1, sum } from './test-helpers'
 
 tap.test('pipeline', async t => {
