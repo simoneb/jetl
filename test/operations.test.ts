@@ -144,6 +144,54 @@ tap.test('operations', async t => {
       }
     })
 
+    t.test('windows separator within same string', async t => {
+      const result = split()(generate(['hello\r\nworld']))
+
+      const expected = ['hello', 'world']
+
+      t.plan(expected.length)
+
+      for await (const e of result) {
+        t.same(e, expected.shift())
+      }
+    })
+
+    t.test('separator on boundary before between two strings', async t => {
+      const result = split()(generate(['hello\n', 'world']))
+
+      const expected = ['hello', 'world']
+
+      t.plan(expected.length)
+
+      for await (const e of result) {
+        t.same(e, expected.shift())
+      }
+    })
+
+    t.test('separator on boundary after between two strings', async t => {
+      const result = split()(generate(['hello', '\nworld']))
+
+      const expected = ['hello', 'world']
+
+      t.plan(expected.length)
+
+      for await (const e of result) {
+        t.same(e, expected.shift())
+      }
+    })
+
+    t.test('split four lines on three writes', async t => {
+      const result = split()(generate(['hello\nwor', 'ld\nbye\nwo', 'rld']))
+
+      const expected = ['hello', 'world', 'bye', 'world']
+
+      t.plan(expected.length)
+
+      for await (const e of result) {
+        t.same(e, expected.shift())
+      }
+    })
+
     t.test('multiple separators within same string', async t => {
       const result = split()(generate(['hello\nwonderful\nworld']))
 
@@ -179,15 +227,17 @@ tap.test('operations', async t => {
     t.test('empty string', async t => {
       const result = split()(generate(['']))
 
+      t.plan(1)
+
       for await (const e of result) {
-        t.fail()
+        t.same(e, '')
       }
     })
 
     t.test('just separator', async t => {
       const result = split()(generate(['\n']))
 
-      t.plan(1)
+      t.plan(2)
 
       for await (const e of result) {
         t.same(e, '')

@@ -107,7 +107,7 @@ export function group<T, TKey = T, TResult = T[]>(
 }
 
 export function split(separator: string | RegExp = /\r?\n/) {
-  let buffer = ''
+  let buffer: string[] = []
 
   return async function* split(
     iterable: AsyncIterable<string | Buffer>
@@ -116,17 +116,17 @@ export function split(separator: string | RegExp = /\r?\n/) {
       const [first, ...rest] = (
         typeof chunk === 'string' ? chunk : chunk.toString()
       ).split(separator)
-      buffer += first
+      buffer.push(first)
 
       if (rest.length) {
-        yield buffer
+        yield buffer.join('')
         yield* rest.slice(0, rest.length - 1)
-        buffer = rest[rest.length - 1]
+        buffer = [rest[rest.length - 1]]
       }
     }
 
     if (buffer.length) {
-      yield buffer
+      yield buffer.join('')
     }
   }
 }
