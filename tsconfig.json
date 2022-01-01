@@ -1,7 +1,7 @@
 {
-  "extends": "@tsconfig/node16/tsconfig.json",
+  "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "dist/cjs",
     "declaration": true
   },
   "include": ["src"]

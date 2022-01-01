@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <script type="module">
+      import { pipeline, generate, toArray } from '../dist/esm/index.js'
+
+      const result = new pipeline().add(generate([1, 2, 3])).run()
+
+      document.getElementById('root').textContent = await toArray(result)
+    </script>
+  </head>
+  <body>
+    <div id="root" />
+  </body>
+</html>
