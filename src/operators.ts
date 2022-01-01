@@ -62,3 +62,12 @@ export async function first<T>(iterable: AsyncIterable<T>): Promise<T> {
 
   return (await iterator.next()).value
 }
+
+export async function count<T>(iterable: AsyncIterable<T>): Promise<number> {
+  const iterator = iterable[Symbol.asyncIterator]()
+  let count = 0
+
+  for (; !(await iterator.next()).done; count++);
+
+  return count
+}

@@ -1,5 +1,5 @@
 import tap from 'tap'
-import { cache, empty, first, toArray } from '../src/operators'
+import { cache, count, empty, first, toArray } from '../src/operators'
 import { generateOnce } from '../src/operations'
 
 tap.test('operators', async t => {
@@ -33,6 +33,12 @@ tap.test('operators', async t => {
   t.test('first', async t => {
     t.test('should return first element', async t => {
       t.same(await first(generateOnce([1, 2, 3])()), 1)
+    })
+  })
+
+  t.test('count', async t => {
+    t.test('should count the number of elements', async t => {
+      t.same(await count(generateOnce([1, 2, 3])()), 3)
     })
   })
 })
