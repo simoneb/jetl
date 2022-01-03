@@ -1,6 +1,7 @@
 import tap from 'tap'
 import { first, toArray } from '../src/operators'
 import {
+  apply,
   generateOnce,
   joinStrings,
   filter,
@@ -253,6 +254,18 @@ tap.test('operations', async t => {
 
       for await (const e of result) {
         t.same(e, expected.shift())
+      }
+    })
+  })
+
+  t.test('apply', async t => {
+    t.test('simple', async t => {
+      t.plan(1)
+
+      const result = apply(first)(generateOnce([1, 2, 3])())
+
+      for await (const item of result) {
+        t.same(item, 1)
       }
     })
   })

@@ -130,3 +130,11 @@ export function split(separator: string | RegExp = /\r?\n/) {
     }
   }
 }
+
+export function apply<T, TResult>(
+  operator: (rows: AsyncIterable<T>) => Promise<TResult>
+) {
+  return async function* apply(rows: AsyncIterable<T>) {
+    yield await operator(rows)
+  }
+}

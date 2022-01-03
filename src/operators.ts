@@ -4,21 +4,6 @@ export async function* empty() {
   // do nothing
 }
 
-export function reduce<T, TResult>(
-  reducer: (acc: TResult, current: T) => TResult,
-  initialValue: TResult
-) {
-  return async function* reduce(rows: AsyncIterable<T>) {
-    let result = initialValue
-
-    for await (const row of rows) {
-      result = reducer(result, row)
-    }
-
-    yield result
-  }
-}
-
 export function cache<T>(source: AsyncIterable<T>) {
   const cache: T[] = []
   let firstTime = true
@@ -70,4 +55,19 @@ export async function count<T>(iterable: AsyncIterable<T>): Promise<number> {
   for (; !(await iterator.next()).done; count++);
 
   return count
+}
+
+export function reduce<T, TResult>(
+  reducer: (acc: TResult, current: T) => TResult,
+  initialValue: TResult
+) {
+  return async function reduce(rows: AsyncIterable<T>) {
+    let result = initialValue
+
+    for await (const row of rows) {
+      result = reducer(result, row)
+    }
+
+    return result
+  }
 }

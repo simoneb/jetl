@@ -1,6 +1,6 @@
 import tap from 'tap'
+import { apply, generate, generateOnce, map } from '../src/operations'
 import { reduce } from '../src/operators'
-import { generate, generateOnce, map } from '../src/operations'
 import { pipeline } from '../src/pipeline'
 import { generateFibonacci, plus1, sum } from './test-helpers'
 
@@ -46,12 +46,12 @@ tap.test('pipeline', async t => {
     }
   })
 
-  t.test('reduce', async t => {
+  t.test('apply', async t => {
     t.plan(1)
 
     const result = new pipeline()
       .add(generateOnce([1, 2, 3]))
-      .add(reduce((acc, current) => acc + current, 0))
+      .add(apply(reduce((acc, current) => acc + current, 0)))
       .run()
 
     for await (const sum of result) {
