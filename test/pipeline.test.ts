@@ -180,6 +180,20 @@ tap.test('pipeline', async t => {
         t.strictSame(e, expected.shift())
       }
     })
+
+    t.test('multiple forks - default', async t => {
+      const pipelines = await new pipeline().add(generateOnce([1, 2, 3])).fork()
+
+      t.same(pipelines.length, 2)
+    })
+
+    t.test('multiple forks - custom', async t => {
+      const pipelines = await new pipeline()
+        .add(generateOnce([1, 2, 3]))
+        .fork(3)
+
+      t.same(pipelines.length, 3)
+    })
   })
 
   t.test('group', async t => {
