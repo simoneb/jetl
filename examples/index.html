@@ -3,7 +3,7 @@
     <script type="module">
       import { pipeline, generate, toArray } from '../dist/esm/index.js'
 
-      const result = new pipeline().add(generate([1, 2, 3])).run()
+      const result = new pipeline().add([1, 2, 3]).run()
 
       document.getElementById('root').textContent = await toArray(result)
     </script>

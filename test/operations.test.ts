@@ -24,6 +24,7 @@ tap.test('operations', async t => {
         t.ok(e)
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const e of generator) {
         t.fail()
       }
@@ -220,6 +221,7 @@ tap.test('operations', async t => {
     t.test('empty', async t => {
       const result = split()(generate([]))
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const e of result) {
         t.fail()
       }

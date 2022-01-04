@@ -1,12 +1,25 @@
-import { cache, consume, empty, toOperation } from './operators'
-import { group, join } from './operations'
+import { cache, consume, empty } from './operators'
+import { group, join, generate } from './operations'
 import { MatchCondition, MergeOperation, Operation } from './types'
+
+function toOperation<T, TResult>(
+  value: Operation<T, TResult> | AsyncIterable<TResult> | Iterable<TResult>
+) {
+  if (typeof value === 'function') {
+    return value
+  }
+
+  return () => generate(value)
+}
 
 export class pipeline<T = unknown> {
   private operations: Operation<unknown, unknown>[] = []
 
   public add<TResult>(
-    operation: Operation<T, TResult> | AsyncIterable<TResult>
+    operation:
+      | Operation<T, TResult>
+      | AsyncIterable<TResult>
+      | Iterable<TResult>
   ): pipeline<TResult> {
     this.operations.push(toOperation(operation) as Operation<unknown, unknown>)
     return this as unknown as pipeline<TResult>

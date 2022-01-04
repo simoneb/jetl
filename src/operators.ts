@@ -1,5 +1,3 @@
-import { Operation } from './types'
-
 export async function* empty() {
   // do nothing
 }
@@ -19,12 +17,6 @@ export function cache<T>(source: AsyncIterable<T>) {
       yield* cache
     }
   }
-}
-
-export function toOperation<T, TResult>(
-  value: Operation<T, TResult> | AsyncIterable<TResult>
-) {
-  return typeof value === 'function' ? value : () => value
 }
 
 export async function consume<T>(rows: AsyncIterable<T>) {

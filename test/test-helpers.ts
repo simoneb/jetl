@@ -16,13 +16,13 @@ export function generateFibonacci(max: number) {
   }
 }
 
-export async function* plus1(rows: AsyncIterable<number>) {
+export async function* plus1(rows: AsyncIterable<number> | Iterable<number>) {
   for await (const row of rows) {
     yield row + 1
   }
 }
 
-export async function* sum(rows: AsyncIterable<number>) {
+export async function* sum(rows: AsyncIterable<number> | Iterable<number>) {
   let sum = 0
 
   for await (const row of rows) {

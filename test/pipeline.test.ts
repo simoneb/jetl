@@ -1,5 +1,5 @@
 import tap from 'tap'
-import { apply, generate, generateOnce, map } from '../src/operations'
+import { apply, generateOnce, map } from '../src/operations'
 import { reduce } from '../src/operators'
 import { pipeline } from '../src/pipeline'
 import { generateFibonacci, plus1, sum } from './test-helpers'
@@ -50,7 +50,7 @@ tap.test('pipeline', async t => {
     t.plan(1)
 
     const result = new pipeline()
-      .add(generateOnce([1, 2, 3]))
+      .add([1, 2, 3])
       .add(apply(reduce((acc, current) => acc + current, 0)))
       .run()
 
@@ -62,7 +62,7 @@ tap.test('pipeline', async t => {
   t.test('join', async t => {
     t.test('join simple', async t => {
       const result = new pipeline()
-        .add(generate([1, 2, 3]))
+        .add([1, 2, 3])
         .join(generateOnce([1, 2, 3]))
         .run()
 
@@ -87,7 +87,7 @@ tap.test('pipeline', async t => {
 
     t.test('join match', async t => {
       const result = new pipeline()
-        .add(generate([1, 2, 3]))
+        .add([1, 2, 3])
         .join(generateOnce([1, 2, 3]), (a, b) => a === b)
         .run()
 
@@ -106,7 +106,7 @@ tap.test('pipeline', async t => {
 
     t.test('join match merge', async t => {
       const result = new pipeline()
-        .add(generate([1, 2, 3]))
+        .add([1, 2, 3])
         .join(
           generateOnce([1, 2, 3]),
           (a, b) => a === b,
