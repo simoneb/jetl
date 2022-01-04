@@ -33,12 +33,14 @@ export class pipeline<T = unknown> {
     return this as unknown as pipeline<[TKey, TResult]>
   }
 
-  async fork(): Promise<[pipeline<T>, pipeline<T>]> {
+  async fork(numberOfForks = 2): Promise<pipeline<T>[]> {
     const cached = cache(this.run())
 
     await consume(cached())
 
-    return [new pipeline().add(cached), new pipeline().add(cached)]
+    return Array.from({ length: numberOfForks }, () =>
+      new pipeline().add(cached)
+    )
   }
 
   public async *run() {
