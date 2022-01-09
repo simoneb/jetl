@@ -170,3 +170,31 @@ export function apply<T, TResult>(
     yield await operator(rows)
   }
 }
+
+export function take<T>(number: number) {
+  return async function* take(rows: AsyncIterable<T>) {
+    let i = 0
+
+    for await (const row of rows) {
+      if (i++ >= number) {
+        break
+      }
+
+      yield row
+    }
+  }
+}
+
+export function skip<T>(number: number) {
+  return async function* skip(rows: AsyncIterable<T>) {
+    let i = 0
+
+    for await (const row of rows) {
+      if (i++ < number) {
+        continue
+      }
+
+      yield row
+    }
+  }
+}

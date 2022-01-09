@@ -11,6 +11,8 @@ import {
   generate,
   map,
   split,
+  take,
+  skip,
 } from '../src/operations'
 
 tap.test('operations', async t => {
@@ -268,6 +270,92 @@ tap.test('operations', async t => {
 
       for await (const item of result) {
         t.same(item, 1)
+      }
+    })
+  })
+
+  t.test('take', async t => {
+    t.test('0', async t => {
+      const result = take(0)(generate([1, 2, 3]))
+
+      for await (const item of result) {
+        t.fail()
+      }
+    })
+
+    t.test('< length', async t => {
+      const result = take(1)(generate([1, 2, 3]))
+
+      t.plan(1)
+
+      for await (const item of result) {
+        t.same(item, 1)
+      }
+    })
+
+    t.test('== length', async t => {
+      const input = [1, 2, 3]
+      const result = take(3)(generate([...input]))
+
+      t.plan(input.length)
+
+      for await (const item of result) {
+        t.same(item, input.shift())
+      }
+    })
+
+    t.test('> length', async t => {
+      const input = [1, 2, 3]
+      const result = take(4)(generate([...input]))
+
+      t.plan(input.length)
+
+      for await (const item of result) {
+        t.same(item, input.shift())
+      }
+    })
+  })
+
+  t.test('skip', async t => {
+    t.test('0', async t => {
+      const input = [1, 2, 3]
+      const result = skip(0)(generate([...input]))
+
+      t.plan(input.length)
+
+      for await (const item of result) {
+        t.same(item, input.shift())
+      }
+    })
+
+    t.test('< length', async t => {
+      const input = [1, 2, 3]
+      const result = skip(1)(generate([...input]))
+
+      t.plan(input.length - 1)
+
+      input.shift()
+
+      for await (const item of result) {
+        t.same(item, input.shift())
+      }
+    })
+
+    t.test('== length', async t => {
+      const input = [1, 2, 3]
+      const result = skip(3)(generate([...input]))
+
+      for await (const item of result) {
+        t.fail()
+      }
+    })
+
+    t.test('> length', async t => {
+      const input = [1, 2, 3]
+      const result = skip(4)(generate([...input]))
+
+      for await (const item of result) {
+        t.fail()
       }
     })
   })
