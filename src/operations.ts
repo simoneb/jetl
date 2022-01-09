@@ -51,6 +51,11 @@ export function map<T, TResult>(f: (input: T) => TResult) {
   }
 }
 
+/**
+ * Filters the input iterable using the provided filter function.
+ *
+ * @returns the filtered iterable
+ */
 export function filter<T>(f: (input: T) => boolean) {
   return async function* (iterable: AsyncIterable<T>) {
     for await (const item of iterable) {
@@ -131,6 +136,32 @@ export function split(separator: string | RegExp = /\r?\n/) {
   }
 }
 
+/**
+ * Applies an operator on each element of the input iterable.
+ *
+ * It turns the result of the operator into an iterable which can be used by subsequent stages of the pipeline.
+ *
+ * @example
+ * ```js
+ * async function sumOperator(rows) {
+ *   let sum = 0
+ *
+ *   for await(const row of rows) {
+ *     sum += row
+ *   }
+ *
+ *   return sum
+ * }
+ *
+ * const result = new pipeline()
+ *  .add([1, 2, 3])
+ *  .add(apply(sumOperator))
+ *  .run()
+ *
+ * // Prints 6
+ * console.log(await first(result))
+ * ```
+ */
 export function apply<T, TResult>(
   operator: (rows: AsyncIterable<T>) => Promise<TResult>
 ) {
