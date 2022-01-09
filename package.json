@@ -23,7 +23,11 @@
     "tsd": "tsd",
     "examples": "serve -p 3001"
   },
-  "keywords": [],
+  "keywords": [
+    "etl",
+    "async",
+    "iterators"
+  ],
   "author": "Simone Busoli <simone.busoli@gmail.com>",
   "license": "MIT",
   "devDependencies": {

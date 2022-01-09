@@ -1,8 +1,15 @@
 # jetl
 
+[![npm version](https://badge.fury.io/js/jetl.svg)](https://badge.fury.io/js/jetl)
 [![ci](https://github.com/simoneb/jetl/actions/workflows/ci.yml/badge.svg)](https://github.com/simoneb/jetl/actions/workflows/ci.yml)
+[![release](https://github.com/simoneb/jetl/actions/workflows/release.yml/badge.svg)](https://github.com/simoneb/jetl/actions/workflows/release.yml)
+[![docs](https://github.com/simoneb/jetl/actions/workflows/docs.yml/badge.svg)](https://github.com/simoneb/jetl/actions/workflows/docs.yml)
 
-JavaScript data processing with asynchronous iterators
+JavaScript data processing with asynchronous iterators.
+
+## Documentation
+
+Check out the [documentation website](https://simoneb.github.io/jetl).
 
 ## Setup
 
@@ -15,7 +22,6 @@ npm i jetl
 The example below comments out each line of the current file and prints the result
 
 <!-- prettier-ignore-start -->
-
 ```js
 const fs = require('fs')
 
@@ -33,9 +39,3 @@ const result = new pipeline()             // instantiate pipeline
 console.log(await first(result))          // print the first (only) result
 ```
 <!-- prettier-ignore-end -->
-
-## Concepts
-
-- **Pipelines** are a series of processing stages whose inputs, intermediate processing stages and outputs are asynchronous iterables
-- **Operations** are functions whose inputs and outputs are asynchronous iterables. They compose the stages of a pipeline
-- **Operators** are functions which transform asynchronous iterables into other values, for example unique values, scalar values, arrays, ...
