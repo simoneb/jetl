@@ -17,6 +17,7 @@
     "prepare": "husky install",
     "lint": "eslint . --ext .js,.ts",
     "build": "rimraf dist && run-p build.*",
+    "postbuild": "cp README.md docs/src/pages/index.md",
     "postbuild.esm": "cp dist/esm/index.js docs/src/theme/jetl",
     "build.cjs": "tsc",
     "build.esm": "rollup --config rollup.config.js",
