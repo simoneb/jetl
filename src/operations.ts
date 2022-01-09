@@ -139,7 +139,7 @@ export function split(separator: string | RegExp = /\r?\n/) {
 /**
  * Applies an operator on each element of the input iterable.
  *
- * It turns the result of the operator into an iterable which can be used by subsequent stages of the pipeline.
+ * It's convenient when you want to turn the input iterable into a scalar, to be then consumed by subsequent stages of the pipeline as an iterable value.
  *
  * @example
  * ```js
@@ -155,6 +155,7 @@ export function split(separator: string | RegExp = /\r?\n/) {
  *
  * const result = new pipeline()
  *  .add([1, 2, 3])
+ *  // highlight-next-line
  *  .add(apply(sumOperator))
  *  .run()
  *
