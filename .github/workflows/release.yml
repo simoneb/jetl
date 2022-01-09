@@ -26,5 +26,5 @@ jobs:
           semver: ${{ github.event.inputs.semver }}
           commit-message: 'chore: release {version}'
           build-command: |
-            npm install
+            npm ci
             npm run build
