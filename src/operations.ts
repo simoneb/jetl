@@ -1,7 +1,7 @@
 import { cache, empty, toArray } from './operators'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
-export async function* generate<T>(iterable: Iterable<T>) {
+export async function* generate<T>(iterable: Iterable<T> | AsyncIterable<T>) {
   yield* iterable
 }
 

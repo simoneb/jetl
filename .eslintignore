@@ -1,2 +1,5 @@
 .nyc_output
 dist
+node_modules
+docs/src/theme/jetl
+docs/build

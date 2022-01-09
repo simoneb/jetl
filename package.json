@@ -1,7 +1,7 @@
 {
   "name": "jetl",
   "version": "0.0.4",
-  "description": "",
+  "description": "JavaScript data processing with asynchronous iterators",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
   "exports": {
@@ -17,10 +17,11 @@
     "prepare": "husky install",
     "lint": "eslint . --ext .js,.ts",
     "build": "rimraf dist && run-p build.*",
+    "postbuild.esm": "cp dist/esm/index.js docs/src/theme/jetl",
     "build.cjs": "tsc",
     "build.esm": "rollup --config rollup.config.js",
     "tsd": "tsd",
-    "examples": "serve"
+    "examples": "serve -p 3001"
   },
   "keywords": [],
   "author": "Simone Busoli <simone.busoli@gmail.com>",
