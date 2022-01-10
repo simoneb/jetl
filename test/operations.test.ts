@@ -2,51 +2,20 @@ import tap from 'tap'
 import { first, toArray } from '../src/operators'
 import {
   apply,
-  generateOnce,
   joinStrings,
   filter,
   flatMap,
   unique,
   group,
-  generate,
   map,
   split,
   take,
   skip,
+  unwind,
 } from '../src/operations'
+import { generate, generateOnce } from '../src/generators'
 
 tap.test('operations', async t => {
-  t.test('generate', async t => {
-    t.test('should generate sequence', async t => {
-      t.plan(3)
-
-      const generator = generate([1, 2, 3])
-
-      for await (const e of generator) {
-        t.ok(e)
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for await (const e of generator) {
-        t.fail()
-      }
-    })
-  })
-
-  t.test('generateOnce', async t => {
-    t.test('should generate sequence only once', async t => {
-      t.plan(4)
-
-      const generator = generateOnce([1, 2, 3])
-
-      for await (const e of generator()) {
-        t.ok(e)
-      }
-
-      await t.rejects(generator().next(), /already iterated/)
-    })
-  })
-
   t.test('joinStrings', async t => {
     t.test('default separator', async t => {
       t.same(await first(joinStrings()(generateOnce([1, 2, 3])())), '123')
@@ -345,6 +314,7 @@ tap.test('operations', async t => {
       const input = [1, 2, 3]
       const result = skip(3)(generate([...input]))
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const item of result) {
         t.fail()
       }
@@ -354,8 +324,24 @@ tap.test('operations', async t => {
       const input = [1, 2, 3]
       const result = skip(4)(generate([...input]))
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const item of result) {
         t.fail()
+      }
+    })
+  })
+
+  t.test('unwind', async t => {
+    t.test('simple', async t => {
+      const expected = [1, 2, 3, 4, 5, 6]
+      const result = unwind(
+        generate([generate([1, 2, 3]), generate([4, 5, 6])])
+      )
+
+      t.plan(expected.length)
+
+      for await (const item of result) {
+        t.same(item, expected.shift())
       }
     })
   })

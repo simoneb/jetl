@@ -1,24 +1,3 @@
-export async function* empty() {
-  // do nothing
-}
-
-export function cache<T>(source: AsyncIterable<T>) {
-  const cache: T[] = []
-  let firstTime = true
-
-  return async function* () {
-    if (firstTime) {
-      for await (const row of source) {
-        cache.push(row)
-        yield row
-      }
-      firstTime = false
-    } else {
-      yield* cache
-    }
-  }
-}
-
 export async function consume<T>(rows: AsyncIterable<T>) {
   const iterator = rows[Symbol.asyncIterator]()
   while (!(await iterator.next()).done);
