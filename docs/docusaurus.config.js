@@ -43,6 +43,7 @@ const config = {
           '../src/pipeline.ts',
           '../src/operations.ts',
           '../src/operators.ts',
+          '../src/generators.ts',
           '../src/types.ts',
         ],
         tsconfig: '../tsconfig.json',
