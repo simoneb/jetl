@@ -1,6 +1,7 @@
 import tap from 'tap'
-import { cache, count, empty, first, toArray } from '../src/operators'
-import { generateOnce } from '../src/operations'
+import { count, first, toArray } from '../src/operators'
+import { generateOnce, empty } from '../src/generators'
+import { cache } from '../src/operations'
 
 tap.test('operators', async t => {
   t.test('empty', async t => {

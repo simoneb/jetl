@@ -1,5 +1,6 @@
-import { cache, consume, empty } from './operators'
-import { group, join, generate } from './operations'
+import { consume } from './operators'
+import { group, join, cache } from './operations'
+import { empty, generate } from './generators'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
 function toOperation<T, TResult>(

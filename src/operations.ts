@@ -1,21 +1,21 @@
-import { cache, empty, toArray } from './operators'
+import { toArray } from './operators'
+import { empty } from './generators'
 import { MatchCondition, MergeOperation, Operation } from './types'
 
-export async function* generate<T>(iterable: Iterable<T> | AsyncIterable<T>) {
-  yield* iterable
-}
-
-export function generateOnce<T>(iterable: Iterable<T>) {
-  let executed = false
+export function cache<T>(source: AsyncIterable<T>) {
+  const cache: T[] = []
+  let firstTime = true
 
   return async function* () {
-    if (executed) {
-      throw new Error('already iterated')
+    if (firstTime) {
+      for await (const row of source) {
+        cache.push(row)
+        yield row
+      }
+      firstTime = false
+    } else {
+      yield* cache
     }
-
-    executed = true
-
-    yield* iterable
   }
 }
 
@@ -196,5 +196,13 @@ export function skip<T>(number: number) {
 
       yield row
     }
+  }
+}
+
+export async function* unwind<TNested, T extends AsyncIterable<TNested>>(
+  rows: AsyncIterable<T>
+): AsyncIterable<TNested> {
+  for await (const row of rows) {
+    yield* row
   }
 }
