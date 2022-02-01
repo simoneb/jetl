@@ -46,7 +46,7 @@
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "googleapis": "^92.0.0",
+    "googleapis": "^94.0.0",
     "graphql": "^16.1.0",
     "graphql-request": "^4.0.0",
     "husky": "^7.0.4",
