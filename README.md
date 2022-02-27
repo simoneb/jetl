@@ -1,3 +1,5 @@
+> The license of this software has changed to AWISC - Anti War ISC License
+
 # jetl
 
 [![npm version](https://badge.fury.io/js/jetl.svg)](https://badge.fury.io/js/jetl)
