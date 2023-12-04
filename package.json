@@ -39,7 +39,7 @@
     "@tsconfig/recommended": "^1.0.1",
     "@types/node": "^20.0.0",
     "@types/tap": "^15.0.5",
-    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^5.4.0",
     "csv": "^6.0.5",
     "dotenv": "^16.0.0",
